@@ -128,4 +128,4 @@ export const ALLOWED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-export const ADMIN_EMAIL = 'Omiemh.r7@gmail.com';
+export const ADMIN_EMAIL = 'omiemh.r7@gmail.com';
