@@ -243,7 +243,7 @@ export function useAuth() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  const isAdmin = !!session?.user && session.user.email === ADMIN_EMAIL;
+  const isAdmin = !!session?.user && session.user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   return { session, loading, isAdmin };
 }
