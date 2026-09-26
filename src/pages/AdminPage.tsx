@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseConfigured } from '@/lib/supabase';
 import {
   LogIn,
   LogOut,
@@ -117,6 +117,11 @@ export default function AdminPage() {
               />
             </div>
             {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg p-2">{error}</p>}
+            {!supabaseConfigured && (
+              <p className="text-sm text-red-600 bg-red-50 rounded-lg p-2">
+                متغيرات البيئة غير مهيأة. تأكد من إضافة VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY في إعدادات Netlify.
+              </p>
+            )}
             <button
               type="submit"
               className="w-full py-3 bg-navy text-white rounded-xl font-semibold hover:bg-navy-light transition-colors"
