@@ -256,3 +256,4 @@ INSERT INTO auth.users (
 - **React Router** للتنقل
 - **Lucide React** للأيقونات
 - خط **Cairo** العربي
+Netlify deployment update
