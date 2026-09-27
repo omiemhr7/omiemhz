@@ -26,7 +26,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-sm text-navy-200 leading-relaxed">
-              متوسطة وثانوية ذهبان — العام الدراسي 1448هـ
+              متوسطة وثانوية ذهبان
             </p>
             <p className="text-xs text-navy-300 mt-2">ملف شواهد مهني رقمي</p>
           </div>
@@ -58,7 +58,7 @@ export default function Footer() {
 
         <div className="border-t border-navy-700 mt-8 pt-6 text-center">
           <p className="text-xs text-navy-300">
-            © 1448هـ — ملف الشواهد المهنية — أ. أميمة السلمي
+            © ملف الشواهد المهنية — أ. أميمة السلمي
           </p>
           <Link to="/admin" className="text-xs text-navy-400 hover:text-teal-light transition-colors mt-1 inline-block">
             لوحة الإدارة

@@ -325,7 +325,6 @@ function ProfileManager() {
         name: form.name,
         specialty: form.specialty,
         school: form.school,
-        academic_year: form.academic_year,
         bio: form.bio,
       })
       .eq('id', form.id)
@@ -347,7 +346,6 @@ function ProfileManager() {
         <Field label="الاسم" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
         <Field label="التخصص" value={form.specialty} onChange={(v) => setForm({ ...form, specialty: v })} />
         <Field label="المدرسة" value={form.school} onChange={(v) => setForm({ ...form, school: v })} />
-        <Field label="العام الدراسي" value={form.academic_year} onChange={(v) => setForm({ ...form, academic_year: v })} />
         <div>
           <label className="block text-sm font-medium text-slate-600 mb-1.5">النبذة المهنية</label>
           <textarea
@@ -771,7 +769,7 @@ function EvidenceForm({ evidence, standards, initialLinks, onClose, onSave }: {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="العام الدراسي" value={academicYear || ''} onChange={setAcademicYear} placeholder="1448هـ" />
+
       </div>
 
       <TextArea label="ملاحظات" value={notes || ''} onChange={setNotes} />

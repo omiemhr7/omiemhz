@@ -45,9 +45,7 @@ export default function HomePage() {
                 <span className="px-4 py-1.5 rounded-lg bg-navy-light border border-navy-700 text-sm">
                   {profile?.school || 'متوسطة وثانوية ذهبان'}
                 </span>
-                <span className="px-4 py-1.5 rounded-lg bg-navy-light border border-navy-700 text-sm">
-                  {profile?.academic_year || '1448هـ'}
-                </span>
+
               </div>
               <div className="flex flex-wrap gap-4">
                 <Link
