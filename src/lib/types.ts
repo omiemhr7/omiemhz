@@ -43,6 +43,7 @@ export interface Initiative {
   impact: string | null;
   link_url: string | null;
   cover_image_path: string | null;
+  file_path: string | null;
   created_at: string;
 }
 
@@ -52,6 +53,7 @@ export interface TechTool {
   usage_description: string | null;
   example: string | null;
   url: string | null;
+  file_path: string | null;
   created_at: string;
 }
 

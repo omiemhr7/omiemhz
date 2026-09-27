@@ -882,9 +882,12 @@ function InitiativeForm({ initiative, standards, initialLinks, onClose, onSave }
   const [impact, setImpact] = useState(initiative?.impact || '');
   const [linkUrl, setLinkUrl] = useState(initiative?.link_url || '');
   const [coverPath, setCoverPath] = useState(initiative?.cover_image_path || '');
+  const [filePath, setFilePath] = useState(initiative?.file_path || '');
   const [links, setLinks] = useState<string[]>(initialLinks);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -895,9 +898,24 @@ function InitiativeForm({ initiative, standards, initialLinks, onClose, onSave }
     setUploading(false);
   };
 
+  const handleFileUpload = async (file: File) => {
+    setUploadError('');
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError(`حجم الملف يتجاوز الحد المسموح (${Math.round(MAX_FILE_SIZE / 1024 / 1024)} ميجابايت)`);
+      return;
+    }
+    setUploadingFile(true);
+    const ext = file.name.split('.').pop();
+    const fileName = `initiatives/files/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('evidence-files').upload(fileName, file);
+    if (!error) setFilePath(fileName);
+    else setUploadError('فشل رفع الملف: ' + error.message);
+    setUploadingFile(false);
+  };
+
   const save = async () => {
     setSaving(true);
-    const payload = { name, idea: idea || null, target_audience: target || null, goal: goal || null, impact: impact || null, link_url: linkUrl || null, cover_image_path: coverPath || null };
+    const payload = { name, idea: idea || null, target_audience: target || null, goal: goal || null, impact: impact || null, link_url: linkUrl || null, cover_image_path: coverPath || null, file_path: filePath || null };
     let initId: string;
     if (initiative) {
       const { data } = await supabase.from('initiatives').update(payload).eq('id', initiative.id).select().maybeSingle();
@@ -934,6 +952,19 @@ function InitiativeForm({ initiative, standards, initialLinks, onClose, onSave }
           <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} />
         </label>
         {coverPath && <span className="text-sm text-teal mr-2">تم الرفع</span>}
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-slate-600 mb-1.5">رفع ملف (PDF / صورة / فيديو / مستند)</label>
+        <div className="flex items-center gap-3">
+          <label className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm cursor-pointer hover:bg-slate-200">
+            <Upload className="w-4 h-4" />
+            {uploadingFile ? 'جاري الرفع...' : 'اختر ملف'}
+            <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])} />
+          </label>
+          {filePath && <span className="text-sm text-teal flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم رفع الملف</span>}
+        </div>
+        {uploadError && <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {uploadError}</p>}
+        <p className="text-xs text-slate-400 mt-1">الحد الأقصى: {Math.round(MAX_FILE_SIZE / 1024 / 1024)} ميجابايت</p>
       </div>
       <div>
         <label className="block text-sm font-medium text-slate-600 mb-2">ربط بالمعايير</label>
@@ -1013,11 +1044,29 @@ function TechToolForm({ tool, onClose, onSave }: {
   const [usage, setUsage] = useState(tool?.usage_description || '');
   const [example, setExample] = useState(tool?.example || '');
   const [url, setUrl] = useState(tool?.url || '');
+  const [filePath, setFilePath] = useState(tool?.file_path || '');
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  const handleUpload = async (file: File) => {
+    setUploadError('');
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError(`حجم الملف يتجاوز الحد المسموح (${Math.round(MAX_FILE_SIZE / 1024 / 1024)} ميجابايت)`);
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const fileName = `tech-tools/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('evidence-files').upload(fileName, file);
+    if (!error) setFilePath(fileName);
+    else setUploadError('فشل رفع الملف: ' + error.message);
+    setUploading(false);
+  };
 
   const save = async () => {
     setSaving(true);
-    const payload = { name, usage_description: usage || null, example: example || null, url: url || null };
+    const payload = { name, usage_description: usage || null, example: example || null, url: url || null, file_path: filePath || null };
     if (tool) {
       const { data } = await supabase.from('tech_tools').update(payload).eq('id', tool.id).select().maybeSingle();
       if (data) onSave(data);
@@ -1034,6 +1083,19 @@ function TechToolForm({ tool, onClose, onSave }: {
       <TextArea label="وصف استخدامها" value={usage || ''} onChange={setUsage} />
       <TextArea label="طريقة التوظيف / مثال تطبيقي" value={example || ''} onChange={setExample} />
       <Field label="الرابط" value={url || ''} onChange={setUrl} />
+      <div>
+        <label className="block text-sm font-medium text-slate-600 mb-1.5">رفع ملف (PDF / صورة / فيديو / مستند)</label>
+        <div className="flex items-center gap-3">
+          <label className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm cursor-pointer hover:bg-slate-200">
+            <Upload className="w-4 h-4" />
+            {uploading ? 'جاري الرفع...' : 'اختر ملف'}
+            <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+          </label>
+          {filePath && <span className="text-sm text-teal flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم رفع الملف</span>}
+        </div>
+        {uploadError && <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {uploadError}</p>}
+        <p className="text-xs text-slate-400 mt-1">الحد الأقصى: {Math.round(MAX_FILE_SIZE / 1024 / 1024)} ميجابايت</p>
+      </div>
     </ModalForm>
   );
 }

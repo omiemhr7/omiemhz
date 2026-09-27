@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lightbulb, Target, Users, TrendingUp, X, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Lightbulb, Target, Users, TrendingUp, X, ArrowLeft, ExternalLink, FileText } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { useInitiatives } from '@/lib/hooks';
 import type { Initiative } from '@/lib/types';
@@ -163,6 +163,17 @@ export default function InitiativesPage() {
                   className="inline-flex items-center gap-2 px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors text-sm">
                   <ExternalLink className="w-4 h-4" />
                   فتح رابط المبادرة
+                </a>
+              )}
+              {selected.file_path && (
+                <a
+                  href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/evidence-files/${selected.file_path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-teal text-white rounded-lg hover:bg-teal-dark transition-colors text-sm"
+                >
+                  <FileText className="w-4 h-4" />
+                  عرض الملف المرفق
                 </a>
               )}
             </div>

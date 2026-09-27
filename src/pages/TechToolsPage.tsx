@@ -1,4 +1,4 @@
-import { Monitor, Lightbulb, FileText, ExternalLink } from 'lucide-react';
+import { Monitor, Lightbulb, FileText, ExternalLink, Download } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { useTechTools } from '@/lib/hooks';
 
@@ -73,6 +73,18 @@ export default function TechToolsPage() {
                   </p>
                   <p className="text-sm text-slate-600 leading-relaxed">{tool.example}</p>
                 </div>
+              )}
+
+              {tool.file_path && (
+                <a
+                  href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/evidence-files/${tool.file_path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-teal border border-teal-200 rounded-lg hover:bg-teal hover:text-white transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  عرض الملف المرفق
+                </a>
               )}
             </div>
           ))}
