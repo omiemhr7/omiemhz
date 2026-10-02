@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Search as SearchIcon, FileText, Lightbulb, Monitor, Award, Users, BookOpen, Filter } from 'lucide-react';
+import { Search as SearchIcon, FileText, Lightbulb, Monitor, Award, BookOpen, Filter } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import EvidenceCard from '@/components/EvidenceCard';
 import EvidenceModal from '@/components/EvidenceModal';
@@ -10,12 +10,11 @@ import {
   useInitiatives,
   useTechTools,
   useCourses,
-  useStudentWorks,
 } from '@/lib/hooks';
 import { EVIDENCE_TYPE_LABELS } from '@/lib/types';
 import type { Evidence } from '@/lib/types';
 
-type FilterType = 'all' | 'standards' | 'evidence' | 'initiatives' | 'tech' | 'courses' | 'students';
+type FilterType = 'all' | 'standards' | 'evidence' | 'initiatives' | 'tech' | 'courses';
 
 const filterOptions: { value: FilterType; label: string }[] = [
   { value: 'all', label: 'جميع المعايير' },
@@ -23,7 +22,6 @@ const filterOptions: { value: FilterType; label: string }[] = [
   { value: 'initiatives', label: 'المبادرات' },
   { value: 'courses', label: 'التطوير المهني' },
   { value: 'tech', label: 'التقنية' },
-  { value: 'students', label: 'إنجازات الطالبات' },
 ];
 
 export default function SearchPage() {
@@ -32,7 +30,6 @@ export default function SearchPage() {
   const { initiatives } = useInitiatives();
   const { tools } = useTechTools();
   const { courses } = useCourses();
-  const { works } = useStudentWorks();
 
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
@@ -68,21 +65,15 @@ export default function SearchPage() {
             match(c.name) || (c.provider && match(c.provider))
           )
         : [],
-      students: (filter === 'all' || filter === 'students') && q
-        ? works.filter((w) =>
-            match(w.title) || (w.description && match(w.description)) || (w.category && match(w.category))
-          )
-        : [],
     };
-  }, [query, filter, standards, evidence, initiatives, tools, courses, works]);
+  }, [query, filter, standards, evidence, initiatives, tools, courses]);
 
   const totalCount =
     results.standards.length +
     results.evidence.length +
     results.initiatives.length +
     results.tech.length +
-    results.courses.length +
-    results.students.length;
+    results.courses.length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -248,29 +239,6 @@ export default function SearchPage() {
                       <h4 className="font-bold text-navy text-sm">{c.name}</h4>
                     </div>
                     {c.provider && <p className="text-xs text-slate-500">{c.provider}</p>}
-                  </Link>
-                ))}
-              </div>
-            </ResultSection>
-          )}
-
-          {/* Student works */}
-          {results.students.length > 0 && (
-            <ResultSection icon={Users} title="إنجازات الطالبات" count={results.students.length}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {results.students.map((w) => (
-                  <Link
-                    key={w.id}
-                    to="/student-works"
-                    className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:border-teal-300 transition-all"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-lg bg-navy flex items-center justify-center">
-                        <Users className="w-5 h-5 text-white" />
-                      </div>
-                      <h4 className="font-bold text-navy text-sm">{w.title}</h4>
-                    </div>
-                    {w.description && <p className="text-xs text-slate-500 line-clamp-2">{w.description}</p>}
                   </Link>
                 ))}
               </div>

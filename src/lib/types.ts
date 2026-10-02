@@ -94,6 +94,7 @@ export interface TeacherProfile {
   school: string;
   academic_year: string;
   bio: string;
+  student_works_url: string | null;
 }
 
 export const EVIDENCE_TYPE_LABELS: Record<EvidenceType, string> = {

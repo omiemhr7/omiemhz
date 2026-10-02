@@ -16,7 +16,6 @@ import {
   Users,
   User,
   Upload,
-  Link2,
   Eye,
   EyeOff,
   Search,
@@ -36,7 +35,6 @@ import {
   useInitiatives,
   useTechTools,
   useCourses,
-  useStudentWorks,
   useTeacherProfile,
   useAuth,
 } from '@/lib/hooks';
@@ -47,7 +45,6 @@ import type {
   Initiative,
   TechTool,
   Course,
-  StudentWork,
 } from '@/lib/types';
 import {
   EVIDENCE_TYPE_LABELS,
@@ -204,7 +201,6 @@ function Dashboard() {
   const { evidence } = useEvidenceAdmin();
   const { initiatives } = useInitiatives();
   const { courses } = useCourses();
-  const { works } = useStudentWorks();
   const [standardCounts, setStandardCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -233,7 +229,6 @@ function Dashboard() {
         <StatCard icon={Clock} label="مسودات" value={draftCount} color="amber" />
         <StatCard icon={Lightbulb} label="المبادرات" value={initiatives.length} color="blue" />
         <StatCard icon={Award} label="الدورات والشهادات" value={courses.length} color="navy" />
-        <StatCard icon={Users} label="إنجازات الطالبات" value={works.length} color="teal" />
         <StatCard icon={BookOpen} label="المعايير" value={standards.length} color="blue" />
         <StatCard icon={Monitor} label="الأدوات التقنية" value={0} color="navy" />
       </div>
@@ -326,6 +321,7 @@ function ProfileManager() {
         specialty: form.specialty,
         school: form.school,
         bio: form.bio,
+        student_works_url: form.student_works_url || null,
       })
       .eq('id', form.id)
       .select()
@@ -346,6 +342,17 @@ function ProfileManager() {
         <Field label="الاسم" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
         <Field label="التخصص" value={form.specialty} onChange={(v) => setForm({ ...form, specialty: v })} />
         <Field label="المدرسة" value={form.school} onChange={(v) => setForm({ ...form, school: v })} />
+        <div>
+          <label className="block text-sm font-medium text-slate-600 mb-1.5">رابط ملف إنجاز الطالبات</label>
+          <input
+            type="url"
+            value={form.student_works_url || ''}
+            onChange={(e) => setForm({ ...form, student_works_url: e.target.value })}
+            placeholder="https://..."
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
+          />
+          <p className="text-xs text-slate-400 mt-1">رابط الملف الشامل لأعمال الطالبات — يظهر في قسم «إنجازات الطالبات»</p>
+        </div>
         <div>
           <label className="block text-sm font-medium text-slate-600 mb-1.5">النبذة المهنية</label>
           <textarea
@@ -1227,158 +1234,63 @@ function CourseForm({ course, onClose, onSave }: {
 
 // ─── Student Works Manager ─────────────────────────────────
 function StudentWorksManager() {
-  const { works, setWorks } = useStudentWorks();
-  const { standards } = useStandardsAdmin();
-  const [editing, setEditing] = useState<StudentWork | null>(null);
-  const [showForm, setShowForm] = useState(false);
-
-  const delete_ = async (id: string) => {
-    if (!confirm('حذف هذا الإنجاز؟')) return;
-    await supabase.from('student_works').delete().eq('id', id);
-    setWorks(works.filter((w) => w.id !== id));
-  };
-
-  return (
-    <div>
-      <div className="mb-4">
-        <button onClick={() => { setEditing(null); setShowForm(true); }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-teal text-white rounded-lg text-sm font-medium hover:bg-teal-dark">
-          <Plus className="w-4 h-4" /> إضافة إنجاز طالبة
-        </button>
-      </div>
-
-      {showForm && (
-        <StudentWorkForm work={editing} standards={standards} onClose={() => setShowForm(false)}
-          onSave={(w) => {
-            if (editing) setWorks(works.map((x) => (x.id === w.id ? w : x)));
-            else setWorks([w, ...works]);
-            setShowForm(false);
-          }} />
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {works.map((w) => (
-          <div key={w.id} className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              {w.image_url && <img src={w.image_url} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />}
-              <div className="min-w-0">
-                <p className="font-bold text-navy text-sm truncate">{w.title}</p>
-                {w.category && <span className="text-xs text-slate-500">{w.category}</span>}
-              </div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <button onClick={() => { setEditing(w); setShowForm(true); }} className="p-2 text-slate-400 hover:text-teal">
-                <Edit2 className="w-4 h-4" />
-              </button>
-              <button onClick={() => delete_(w.id)} className="p-2 text-slate-400 hover:text-red-500">
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function StudentWorkForm({ work, standards, onClose, onSave }: {
-  work: StudentWork | null;
-  standards: Standard[];
-  onClose: () => void;
-  onSave: (w: StudentWork) => void;
-}) {
-  const [title, setTitle] = useState(work?.title || '');
-  const [description, setDescription] = useState(work?.description || '');
-  const [category, setCategory] = useState(work?.category || '');
-  const [unit, setUnit] = useState(work?.unit || '');
-  const [activityName, setActivityName] = useState(work?.activity_name || '');
-  const [date, setDate] = useState(work?.date || '');
-  const [imageUrl, setImageUrl] = useState(work?.image_url || '');
-  const [url, setUrl] = useState(work?.url || '');
-  const [filePath, setFilePath] = useState(work?.file_path || '');
-  const [standardId, setStandardId] = useState(work?.standard_id || '');
+  const { profile, setProfile } = useTeacherProfile();
+  const [url, setUrl] = useState(profile?.student_works_url || '');
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  const handleUpload = async (file: File) => {
-    setUploading(true);
-    const ext = file.name.split('.').pop();
-    const fileName = `student-works/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('evidence-files').upload(fileName, file);
-    if (!error) {
-      const publicUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/evidence-files/${fileName}`;
-      setImageUrl(publicUrl);
-    }
-    setUploading(false);
-  };
-
-  const handleFileUpload = async (file: File) => {
-    setUploading(true);
-    const ext = file.name.split('.').pop();
-    const fileName = `student-works/files/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('evidence-files').upload(fileName, file);
-    if (!error) setFilePath(fileName);
-    setUploading(false);
-  };
+  useEffect(() => setUrl(profile?.student_works_url || ''), [profile]);
 
   const save = async () => {
+    if (!profile) return;
     setSaving(true);
-    const payload = {
-      title, description: description || null, category: category || null,
-      unit: unit || null, activity_name: activityName || null, date: date || null,
-      image_url: imageUrl || null, url: url || null, file_path: filePath || null,
-      standard_id: standardId || null,
-    };
-    if (work) {
-      const { data } = await supabase.from('student_works').update(payload).eq('id', work.id).select().maybeSingle();
-      if (data) onSave(data);
-    } else {
-      const { data } = await supabase.from('student_works').insert(payload).select().maybeSingle();
-      if (data) onSave(data);
+    const { data } = await supabase
+      .from('teacher_profile')
+      .update({ student_works_url: url || null })
+      .eq('id', profile.id)
+      .select()
+      .maybeSingle();
+    if (data) {
+      setProfile(data);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     }
     setSaving(false);
   };
 
   return (
-    <ModalForm title={work ? 'تعديل إنجاز' : 'إضافة إنجاز'} onClose={onClose} onSave={save} saving={saving}>
-      <Field label="اسم الإنجاز" value={title} onChange={setTitle} />
-      <Field label="التصنيف" value={category || ''} onChange={setCategory} placeholder="مشروع / نشاط / نموذج رقمي" />
-      <Field label="الوحدة / الموضوع" value={unit || ''} onChange={setUnit} />
-      <Field label="اسم النشاط" value={activityName || ''} onChange={setActivityName} />
-      <TextArea label="الوصف" value={description || ''} onChange={setDescription} />
-      <Field label="تاريخ التنفيذ" value={date || ''} onChange={setDate} />
-      <div>
-        <label className="block text-sm font-medium text-slate-600 mb-1.5">المعيار المرتبط</label>
-        <select value={standardId} onChange={(e) => setStandardId(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 bg-white">
-          <option value="">بدون معيار</option>
-          {standards.map((s) => (
-            <option key={s.id} value={s.id}>{String(s.number).padStart(2, '0')} — {s.title}</option>
-          ))}
-        </select>
-      </div>
-      <Field label="رابط خارجي" value={url || ''} onChange={setUrl} />
-      <div>
-        <label className="block text-sm font-medium text-slate-600 mb-1.5">صورة العمل</label>
-        <div className="flex items-center gap-3">
-          <label className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm cursor-pointer hover:bg-slate-200">
-            <Upload className="w-4 h-4" />
-            {uploading ? 'جاري الرفع...' : 'اختر صورة'}
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} />
-          </label>
-          {imageUrl && <img src={imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover" />}
+    <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-2xl">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-teal/10 flex items-center justify-center">
+          <Award className="w-5 h-5 text-teal" />
+        </div>
+        <div>
+          <h3 className="font-bold text-navy text-sm">ملف إنجاز الطالبات</h3>
+          <p className="text-xs text-slate-500">رابط واحد لملف شامل يحتوي على جميع أعمال الطالبات</p>
         </div>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-slate-600 mb-1.5">رفع ملف العمل</label>
-        <label className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm cursor-pointer hover:bg-slate-200">
-          <Upload className="w-4 h-4" />
-          {uploading ? 'جاري الرفع...' : 'اختر ملف'}
-          <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])} />
-        </label>
-        {filePath && <span className="text-sm text-teal mr-2">تم الرفع</span>}
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-600 mb-1.5">رابط الملف</label>
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://..."
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
+          />
+          <p className="text-xs text-slate-400 mt-1">ألصق رابط الملف الإلكتروني الشامل لأعمال الطالبات هنا</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button onClick={save} disabled={saving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal text-white rounded-lg font-medium hover:bg-teal-dark transition-colors disabled:opacity-50">
+            <Save className="w-4 h-4" />
+            {saving ? 'جاري الحفظ...' : 'حفظ الرابط'}
+          </button>
+          {saved && <span className="text-sm text-teal">تم الحفظ بنجاح</span>}
+        </div>
       </div>
-    </ModalForm>
+    </div>
   );
 }
 

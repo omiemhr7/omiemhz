@@ -147,7 +147,7 @@ export default function HomePage() {
             to="/student-works"
             icon={Users}
             title="إنجازات الطالبات"
-            desc="مشاريع وإنجازات ونماذج أعمال الطالبات"
+            desc="ملف إلكتروني شامل يوثّق أعمال وإنجازات الطالبات"
           />
           <QuickCard
             to="/search"
