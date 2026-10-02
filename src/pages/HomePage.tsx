@@ -146,7 +146,7 @@ export default function HomePage() {
           <QuickCard
             to="/student-works"
             icon={Users}
-            title="أعمال الطالبات"
+            title="إنجازات الطالبات"
             desc="مشاريع وإنجازات ونماذج أعمال الطالبات"
           />
           <QuickCard

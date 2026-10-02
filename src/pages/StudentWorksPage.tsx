@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, X, ExternalLink } from 'lucide-react';
+import { Users, X, ExternalLink, FileText, Award } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { useStudentWorks } from '@/lib/hooks';
 import type { StudentWork } from '@/lib/types';
@@ -10,15 +10,15 @@ export default function StudentWorksPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumbs items={[{ label: 'أعمال الطالبات وإنجازاتهن' }]} />
+      <Breadcrumbs items={[{ label: 'إنجازات الطالبات' }]} />
 
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 rounded-xl bg-navy flex items-center justify-center">
-            <Users className="w-6 h-6 text-white" />
+            <Award className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-navy">أعمال الطالبات وإنجازاتهن</h1>
+            <h1 className="text-2xl font-bold text-navy">إنجازات الطالبات</h1>
             <p className="text-sm text-slate-500">المشاريع والمنتجات التعليمية والأنشطة التطبيقية</p>
           </div>
         </div>
@@ -32,8 +32,8 @@ export default function StudentWorksPage() {
         </div>
       ) : works.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-          <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500 mb-1">لا توجد أعمال طالبات مضافة بعد</p>
+          <Award className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <p className="text-slate-500 mb-1">لا توجد إنجازات طالبات مضافة بعد</p>
           <p className="text-sm text-slate-400">يمكن إضافة المشاريع والإنجازات من خلال لوحة الإدارة</p>
         </div>
       ) : (
@@ -50,7 +50,7 @@ export default function StudentWorksPage() {
                 </div>
               ) : (
                 <div className="h-40 bg-navy flex items-center justify-center">
-                  <Users className="w-10 h-10 text-navy-300" />
+                  <Award className="w-10 h-10 text-navy-300" />
                 </div>
               )}
               <div className="p-5">
@@ -62,6 +62,12 @@ export default function StudentWorksPage() {
                 <h3 className="font-bold text-navy text-sm mb-1 leading-tight">{work.title}</h3>
                 {work.description && (
                   <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">{work.description}</p>
+                )}
+                {(work.file_path || work.url) && (
+                  <div className="flex items-center gap-1.5 mt-3 text-xs text-teal">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>يتضمن ملف مرفق</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -99,17 +105,30 @@ export default function StudentWorksPage() {
               {selected.description && (
                 <p className="text-slate-600 leading-relaxed mb-4">{selected.description}</p>
               )}
-              {selected.url && (
-                <a
-                  href={selected.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors text-sm"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  عرض العمل
-                </a>
-              )}
+              <div className="flex flex-wrap gap-3">
+                {selected.url && (
+                  <a
+                    href={selected.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors text-sm"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    عرض الرابط الخارجي
+                  </a>
+                )}
+                {selected.file_path && (
+                  <a
+                    href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/evidence-files/${selected.file_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-teal text-white rounded-lg hover:bg-teal-dark transition-colors text-sm"
+                  >
+                    <FileText className="w-4 h-4" />
+                    عرض الملف المرفق
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>

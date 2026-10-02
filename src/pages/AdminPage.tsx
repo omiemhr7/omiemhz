@@ -145,7 +145,7 @@ export default function AdminPage() {
     { id: 'initiatives', label: 'المبادرات', icon: Lightbulb },
     { id: 'tech', label: 'الأدوات التقنية', icon: Monitor },
     { id: 'courses', label: 'الدورات', icon: Award },
-    { id: 'students', label: 'أعمال الطالبات', icon: Users },
+    { id: 'students', label: 'إنجازات الطالبات', icon: Users },
   ];
 
   return (
@@ -233,7 +233,7 @@ function Dashboard() {
         <StatCard icon={Clock} label="مسودات" value={draftCount} color="amber" />
         <StatCard icon={Lightbulb} label="المبادرات" value={initiatives.length} color="blue" />
         <StatCard icon={Award} label="الدورات والشهادات" value={courses.length} color="navy" />
-        <StatCard icon={Users} label="أعمال الطالبات" value={works.length} color="teal" />
+        <StatCard icon={Users} label="إنجازات الطالبات" value={works.length} color="teal" />
         <StatCard icon={BookOpen} label="المعايير" value={standards.length} color="blue" />
         <StatCard icon={Monitor} label="الأدوات التقنية" value={0} color="navy" />
       </div>
@@ -1233,7 +1233,7 @@ function StudentWorksManager() {
   const [showForm, setShowForm] = useState(false);
 
   const delete_ = async (id: string) => {
-    if (!confirm('حذف هذا العمل؟')) return;
+    if (!confirm('حذف هذا الإنجاز؟')) return;
     await supabase.from('student_works').delete().eq('id', id);
     setWorks(works.filter((w) => w.id !== id));
   };
@@ -1243,7 +1243,7 @@ function StudentWorksManager() {
       <div className="mb-4">
         <button onClick={() => { setEditing(null); setShowForm(true); }}
           className="inline-flex items-center gap-2 px-4 py-2 bg-teal text-white rounded-lg text-sm font-medium hover:bg-teal-dark">
-          <Plus className="w-4 h-4" /> إضافة عمل طالبة
+          <Plus className="w-4 h-4" /> إضافة إنجاز طالبة
         </button>
       </div>
 
@@ -1340,8 +1340,8 @@ function StudentWorkForm({ work, standards, onClose, onSave }: {
   };
 
   return (
-    <ModalForm title={work ? 'تعديل عمل' : 'إضافة عمل'} onClose={onClose} onSave={save} saving={saving}>
-      <Field label="اسم العمل" value={title} onChange={setTitle} />
+    <ModalForm title={work ? 'تعديل إنجاز' : 'إضافة إنجاز'} onClose={onClose} onSave={save} saving={saving}>
+      <Field label="اسم الإنجاز" value={title} onChange={setTitle} />
       <Field label="التصنيف" value={category || ''} onChange={setCategory} placeholder="مشروع / نشاط / نموذج رقمي" />
       <Field label="الوحدة / الموضوع" value={unit || ''} onChange={setUnit} />
       <Field label="اسم النشاط" value={activityName || ''} onChange={setActivityName} />

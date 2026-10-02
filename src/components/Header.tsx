@@ -8,7 +8,7 @@ const navLinks = [
   { to: '/initiatives', label: 'المبادرات' },
   { to: '/professional-development', label: 'التطوير المهني' },
   { to: '/tech-tools', label: 'التوظيف التقني' },
-  { to: '/student-works', label: 'أعمال الطالبات' },
+  { to: '/student-works', label: 'إنجازات الطالبات' },
 ];
 
 export default function Header() {

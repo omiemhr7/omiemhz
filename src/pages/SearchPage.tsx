@@ -23,7 +23,7 @@ const filterOptions: { value: FilterType; label: string }[] = [
   { value: 'initiatives', label: 'المبادرات' },
   { value: 'courses', label: 'التطوير المهني' },
   { value: 'tech', label: 'التقنية' },
-  { value: 'students', label: 'أعمال الطالبات' },
+  { value: 'students', label: 'إنجازات الطالبات' },
 ];
 
 export default function SearchPage() {
@@ -256,7 +256,7 @@ export default function SearchPage() {
 
           {/* Student works */}
           {results.students.length > 0 && (
-            <ResultSection icon={Users} title="أعمال الطالبات" count={results.students.length}>
+            <ResultSection icon={Users} title="إنجازات الطالبات" count={results.students.length}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {results.students.map((w) => (
                   <Link
