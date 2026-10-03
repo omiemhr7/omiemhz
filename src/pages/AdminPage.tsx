@@ -201,6 +201,7 @@ function Dashboard() {
   const { evidence } = useEvidenceAdmin();
   const { initiatives } = useInitiatives();
   const { courses } = useCourses();
+  const { tools } = useTechTools();
   const [standardCounts, setStandardCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -230,7 +231,7 @@ function Dashboard() {
         <StatCard icon={Lightbulb} label="المبادرات" value={initiatives.length} color="blue" />
         <StatCard icon={Award} label="الدورات والشهادات" value={courses.length} color="navy" />
         <StatCard icon={BookOpen} label="المعايير" value={standards.length} color="blue" />
-        <StatCard icon={Monitor} label="الأدوات التقنية" value={0} color="navy" />
+        <StatCard icon={Monitor} label="الأدوات التقنية" value={tools.length} color="navy" />
       </div>
 
       {/* Evidence per standard */}
